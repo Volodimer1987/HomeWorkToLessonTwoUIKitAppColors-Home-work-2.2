@@ -27,7 +27,13 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         adjustViewInAppForEnter()
+        configureTabRecognizer()
+        
+        self.redValueTextField.delegate = self
+        self.greenValueTextOutlet.delegate = self
+        self.blueValueTextOutlet.delegate = self
         
     }
     
@@ -37,52 +43,141 @@ class ViewController: UIViewController {
         
         // slider adjust
         // red
-        redSliderOutlet.value = 0.0
+        redSliderOutlet.value = 0.76
         redSliderOutlet.minimumValue = 0.0
         redSliderOutlet.maximumValue = 1
+        redSliderOutlet.minimumTrackTintColor = .red
+        redSliderOutlet.maximumTrackTintColor = .gray
         
         //green
-        greenSliderOutlet.value = 0.0
+        greenSliderOutlet.value = 0.26
         greenSliderOutlet.minimumValue = 0.0
         greenSliderOutlet.maximumValue = 1
+        greenSliderOutlet.minimumTrackTintColor = .green
+        greenSliderOutlet.maximumTrackTintColor = .gray
         
         //blue
-        blueSliderOutlet.value = 0.0
+        blueSliderOutlet.value = 0.49
         blueSliderOutlet.minimumValue = 0.0
         blueSliderOutlet.maximumValue = 1
+        blueSliderOutlet.minimumTrackTintColor = .blue
+        blueSliderOutlet.maximumTrackTintColor = .gray
         
-        //colorValueOutletsAdjust
-        
-        redValueOutlet.text = "\(redSliderOutlet.value)"
-        greenValueOutlet.text = "\(greenSliderOutlet.value)"
-        blueValueOutlet.text = "\(blueSliderOutlet.value)"
-        
-        //adjust text in insert outlets text
-        
-        redValueTextField.text = "\(redSliderOutlet.value)"
-        greenValueTextOutlet.text = "\(greenSliderOutlet.value)"
-        blueValueTextOutlet.text = "\(blueSliderOutlet.value)"
-        
-        mainImageColorMixOtlet.backgroundColor = sendColorOnMainColorLaibl(red: redSliderOutlet.value,
-                                                                           green: greenSliderOutlet.value,
-                                                                           blue: blueSliderOutlet.value)
+        sendColorOnMainColorLaibl(red: redSliderOutlet.value,green: greenSliderOutlet.value,blue: blueSliderOutlet.value)
         
     }
     
-    private func sendColorOnMainColorLaibl(red:Float,green:Float,blue:Float) ->UIColor {
-        let color = UIColor(red: CGFloat(red),
-                            green: CGFloat(green),
-                            blue: CGFloat(blue),
-                            alpha: mainImageColorMixOtlet.alpha)
-        return color
+    private func twoDigitAfterPoint(digit:Float) -> Float {
+        let digitForBack = (digit*100).rounded()/100
+        return digitForBack
+    }
+    
+    private func configureTabRecognizer() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hendleTap))
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    private func checkAllTextFieldsAfterTabGesture() {
+        
+    }
+    
+    @objc func hendleTap() {
+        print("Chlen Babyshka ")
+        view.endEditing(true)
+    }
+    
+    private func fromTextFieldTooFloat(text:UITextField) -> Float? {
+        
+        if let float = Float(text.text!){
+            return float
+        } else {
+            return nil
+        }
+        
+    }
+    private func updateColor() {
+        mainImageColorMixOtlet.backgroundColor = UIColor(red: CGFloat(redSliderOutlet.value),
+                                                         green: CGFloat(greenSliderOutlet.value),
+                                                         blue: CGFloat(blueSliderOutlet.value),
+                                                         alpha: mainImageColorMixOtlet.alpha)
+    }
+    
+    private func forAll(textFromTextField:UITextField,slider:UISlider,label:UILabel){
+        
+        guard let checkedText = fromTextFieldTooFloat(text: textFromTextField),
+              checkedText <= 1 else {sendAlert(alertTitle: "Wrong", alertMessage: "Change Value");textFromTextField.text = "\(slider.value)" ;return}
+        
+        
+        slider.value = twoDigitAfterPoint(digit: checkedText)
+        label.text = "\(twoDigitAfterPoint(digit: checkedText))"
+        textFromTextField.text = "\(twoDigitAfterPoint(digit: checkedText))"
+        
+        updateColor()
+        
+    }
+ 
+    
+    private  func sendColorOnMainColorLaibl(red:Float,green:Float,blue:Float) {
+        updateColor()
+        
+        redValueOutlet.text   =   "\(twoDigitAfterPoint(digit: red))"
+        greenValueOutlet.text = "\(twoDigitAfterPoint(digit: green))"
+        blueValueOutlet.text  =  "\(twoDigitAfterPoint(digit: blue))"
+        
+        redValueTextField.text    = "\(twoDigitAfterPoint(digit: red))"
+        greenValueTextOutlet.text = "\(twoDigitAfterPoint(digit: green))"
+        blueValueTextOutlet.text  = "\(twoDigitAfterPoint(digit: blue))"
+
     }
     
     @IBAction func changedColorByValue(_ sender: UISlider) {
         
-        
-        
+        switch sender {
+        case redSliderOutlet:
+            sendColorOnMainColorLaibl(red: sender.value,
+                                      green: greenSliderOutlet.value,
+                                      blue: blueSliderOutlet.value)
+        case greenSliderOutlet:
+            sendColorOnMainColorLaibl(red: redSliderOutlet.value,
+                                      green: sender.value,
+                                      blue:blueSliderOutlet.value)
+        case blueSliderOutlet:
+            sendColorOnMainColorLaibl(red: redSliderOutlet.value,
+                                      green: greenSliderOutlet.value,
+                                      blue:sender.value)
+        default:
+            break
+        }
     }
-    
-
 }
 
+// added alert
+extension ViewController {
+    func sendAlert(alertTitle:String,alertMessage:String) {
+        let alert = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
+        
+        let alertAction = UIAlertAction(title: "Ok", style: .cancel)
+ 
+        alert.addAction(alertAction)
+        present(alert, animated: true)
+    }
+}
+
+extension ViewController:UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+       
+        switch textField {
+        case redValueTextField:
+            forAll(textFromTextField: textField, slider: redSliderOutlet, label: redValueOutlet)
+        case greenValueTextOutlet:
+            forAll(textFromTextField: textField, slider: greenSliderOutlet, label: greenValueOutlet)
+        case blueValueTextOutlet:
+            forAll(textFromTextField: textField, slider: blueSliderOutlet, label: blueValueOutlet)
+        default:
+            break
+        }
+        
+        textField.resignFirstResponder()
+        return true
+    }
+}

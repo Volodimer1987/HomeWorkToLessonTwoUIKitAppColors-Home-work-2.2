@@ -56,7 +56,7 @@
                                             <constraint firstAttribute="width" constant="55" id="cAo-RZ-wYw"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="19"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" returnKeyType="done"/>
                                     </textField>
                                 </subviews>
                             </stackView>
@@ -93,7 +93,7 @@
                                             <constraint firstAttribute="width" constant="55" id="Z4H-4q-XFH"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="19"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" returnKeyType="done"/>
                                     </textField>
                                 </subviews>
                             </stackView>
@@ -130,7 +130,7 @@
                                             <constraint firstAttribute="width" constant="55" id="V22-Z9-tlq"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="19"/>
-                                        <textInputTraits key="textInputTraits"/>
+                                        <textInputTraits key="textInputTraits" returnKeyType="done"/>
                                     </textField>
                                 </subviews>
                             </stackView>
