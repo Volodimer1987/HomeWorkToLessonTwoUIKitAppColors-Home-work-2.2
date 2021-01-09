@@ -76,13 +76,8 @@ class ViewController: UIViewController {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hendleTap))
         view.addGestureRecognizer(tapGesture)
     }
-    
-    private func checkAllTextFieldsAfterTabGesture() {
-        
-    }
-    
+
     @objc func hendleTap() {
-        print("Chlen Babyshka ")
         view.endEditing(true)
     }
     
@@ -164,8 +159,8 @@ extension ViewController {
 }
 
 extension ViewController:UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-       
+    
+    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
         switch textField {
         case redValueTextField:
             forAll(textFromTextField: textField, slider: redSliderOutlet, label: redValueOutlet)
@@ -176,7 +171,10 @@ extension ViewController:UITextFieldDelegate {
         default:
             break
         }
-        
+        return true
+    }
+     
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
