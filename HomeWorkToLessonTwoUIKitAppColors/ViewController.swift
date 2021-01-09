@@ -30,6 +30,7 @@ class ViewController: UIViewController {
         
         adjustViewInAppForEnter()
         configureTabRecognizer()
+        addDoneButtonOnUpKeyboard()
         
         self.redValueTextField.delegate = self
         self.greenValueTextOutlet.delegate = self
@@ -37,6 +38,26 @@ class ViewController: UIViewController {
         
     }
     
+    private func addDoneButtonOnUpKeyboard() {
+        //init toolbar
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0,  width: self.view.frame.size.width, height: 30))
+        //create left side empty space so that done button set on right side
+        
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let doneBtn  = UIBarButtonItem(title: "Done",
+                                       style: .done,
+                                       target: self,
+                                       action:#selector(hendleTap))
+        toolbar.setItems([flexSpace, doneBtn], animated: false)
+        toolbar.sizeToFit()
+        
+        //setting toolbar as inputAccessoryView
+        
+        self.redValueTextField.inputAccessoryView = toolbar
+        self.greenValueTextOutlet.inputAccessoryView = toolbar
+        self.blueValueTextOutlet.inputAccessoryView = toolbar
+    }
+
     private func adjustViewInAppForEnter() {
         
         mainImageColorMixOtlet.layer.cornerRadius = 15
