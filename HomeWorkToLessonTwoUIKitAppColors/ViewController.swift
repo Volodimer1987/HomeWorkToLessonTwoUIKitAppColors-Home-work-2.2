@@ -39,8 +39,7 @@ class ViewController: UIViewController {
     
     private func adjustViewInAppForEnter() {
         
-        mainImageColorMixOtlet.layer.cornerRadius = 10
-        
+        mainImageColorMixOtlet.layer.cornerRadius = 15
         // slider adjust
         // red
         redSliderOutlet.value = 0.76
@@ -90,6 +89,7 @@ class ViewController: UIViewController {
         }
         
     }
+    
     private func updateColor() {
         mainImageColorMixOtlet.backgroundColor = UIColor(red: CGFloat(redSliderOutlet.value),
                                                          green: CGFloat(greenSliderOutlet.value),
@@ -97,10 +97,11 @@ class ViewController: UIViewController {
                                                          alpha: mainImageColorMixOtlet.alpha)
     }
     
-    private func forAll(textFromTextField:UITextField,slider:UISlider,label:UILabel){
+    private func forAll(textFromTextField:UITextField,slider:UISlider,label:UILabel) {
         
-        guard let checkedText = fromTextFieldTooFloat(text: textFromTextField),
-              checkedText <= 1 else {sendAlert(alertTitle: "Wrong", alertMessage: "Change Value");textFromTextField.text = "\(slider.value)" ;return}
+        guard let checkedText = fromTextFieldTooFloat(text: textFromTextField),checkedText <= 1
+        else {  sendAlert(alertTitle: "Wrong", alertMessage: "Change Value");
+                textFromTextField.text = "\(slider.value)" ; return }
         
         
         slider.value = twoDigitAfterPoint(digit: checkedText)
@@ -111,7 +112,6 @@ class ViewController: UIViewController {
         
     }
  
-    
     private  func sendColorOnMainColorLaibl(red:Float,green:Float,blue:Float) {
         updateColor()
         
