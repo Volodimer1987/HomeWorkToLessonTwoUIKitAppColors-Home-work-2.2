@@ -29,8 +29,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         adjustViewInAppForEnter()
-        configureTabRecognizer()
-        addDoneButtonOnUpKeyboard()
+//        configureTabRecognizer()
         
         self.redValueTextField.delegate = self
         self.greenValueTextOutlet.delegate = self
@@ -38,29 +37,12 @@ class ViewController: UIViewController {
         
     }
     
-    private func addDoneButtonOnUpKeyboard() {
-        //init toolbar
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0,  width: self.view.frame.size.width, height: 30))
-        //create left side empty space so that done button set on right side
-        
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let doneBtn  = UIBarButtonItem(title: "Done",
-                                       style: .done,
-                                       target: self,
-                                       action:#selector(hendleTap))
-        toolbar.setItems([flexSpace, doneBtn], animated: false)
-        toolbar.sizeToFit()
-        
-        //setting toolbar as inputAccessoryView
-        
-        self.redValueTextField.inputAccessoryView = toolbar
-        self.greenValueTextOutlet.inputAccessoryView = toolbar
-        self.blueValueTextOutlet.inputAccessoryView = toolbar
-    }
+
 
     private func adjustViewInAppForEnter() {
         
         mainImageColorMixOtlet.layer.cornerRadius = 15
+        
         // slider adjust
         // red
         redSliderOutlet.value = 0.76
@@ -83,8 +65,12 @@ class ViewController: UIViewController {
         blueSliderOutlet.minimumTrackTintColor = .blue
         blueSliderOutlet.maximumTrackTintColor = .gray
         
-        sendColorOnMainColorLaibl(red: redSliderOutlet.value,green: greenSliderOutlet.value,blue: blueSliderOutlet.value)
+        addDoneButtonOnUpKeyboard(textField: redValueTextField)
+        addDoneButtonOnUpKeyboard(textField: blueValueTextOutlet)
+        addDoneButtonOnUpKeyboard(textField: greenValueTextOutlet)
         
+        sendValueFromSlidersTooOutlets()
+        updateColor()
     }
     
     private func twoDigitAfterPoint(digit:Float) -> Float {
@@ -92,14 +78,13 @@ class ViewController: UIViewController {
         return digitForBack
     }
     
-    private func configureTabRecognizer() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hendleTap))
-        view.addGestureRecognizer(tapGesture)
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super .touchesBegan(touches, with: event)
+        super.view.endEditing(true)
     }
 
-    @objc func hendleTap() {
-        view.endEditing(true)
-    }
+
     
     private func fromTextFieldTooFloat(text:UITextField) -> Float? {
         
@@ -117,32 +102,16 @@ class ViewController: UIViewController {
                                                          blue: CGFloat(blueSliderOutlet.value),
                                                          alpha: mainImageColorMixOtlet.alpha)
     }
-    
-    private func forAll(textFromTextField:UITextField,slider:UISlider,label:UILabel) {
+
+    private  func sendValueFromSlidersTooOutlets() {
         
-        guard let checkedText = fromTextFieldTooFloat(text: textFromTextField),checkedText <= 1
-        else {  sendAlert(alertTitle: "Wrong", alertMessage: "Change Value");
-                textFromTextField.text = "\(slider.value)" ; return }
+        redValueOutlet.text   =   "\(twoDigitAfterPoint(digit: redSliderOutlet.value))"
+        greenValueOutlet.text = "\(twoDigitAfterPoint(digit: greenSliderOutlet.value))"
+        blueValueOutlet.text  =  "\(twoDigitAfterPoint(digit: blueSliderOutlet.value))"
         
-        
-        slider.value = twoDigitAfterPoint(digit: checkedText)
-        label.text = "\(twoDigitAfterPoint(digit: checkedText))"
-        textFromTextField.text = "\(twoDigitAfterPoint(digit: checkedText))"
-        
-        updateColor()
-        
-    }
- 
-    private  func sendColorOnMainColorLaibl(red:Float,green:Float,blue:Float) {
-        updateColor()
-        
-        redValueOutlet.text   =   "\(twoDigitAfterPoint(digit: red))"
-        greenValueOutlet.text = "\(twoDigitAfterPoint(digit: green))"
-        blueValueOutlet.text  =  "\(twoDigitAfterPoint(digit: blue))"
-        
-        redValueTextField.text    = "\(twoDigitAfterPoint(digit: red))"
-        greenValueTextOutlet.text = "\(twoDigitAfterPoint(digit: green))"
-        blueValueTextOutlet.text  = "\(twoDigitAfterPoint(digit: blue))"
+        redValueTextField.text    = redValueOutlet.text
+        greenValueTextOutlet.text = greenValueOutlet.text
+        blueValueTextOutlet.text  = blueValueOutlet.text
 
     }
     
@@ -150,20 +119,18 @@ class ViewController: UIViewController {
         
         switch sender {
         case redSliderOutlet:
-            sendColorOnMainColorLaibl(red: sender.value,
-                                      green: greenSliderOutlet.value,
-                                      blue: blueSliderOutlet.value)
+            redValueOutlet.text = "\(twoDigitAfterPoint(digit: sender.value))"
+            redValueTextField.text = "\(twoDigitAfterPoint(digit: sender.value))"
         case greenSliderOutlet:
-            sendColorOnMainColorLaibl(red: redSliderOutlet.value,
-                                      green: sender.value,
-                                      blue:blueSliderOutlet.value)
+            greenValueOutlet.text = "\(twoDigitAfterPoint(digit: sender.value))"
+            greenValueTextOutlet.text = "\(twoDigitAfterPoint(digit: sender.value))"
         case blueSliderOutlet:
-            sendColorOnMainColorLaibl(red: redSliderOutlet.value,
-                                      green: greenSliderOutlet.value,
-                                      blue:sender.value)
+            blueValueOutlet.text = "\(twoDigitAfterPoint(digit: sender.value))"
+            blueValueTextOutlet.text = "\(twoDigitAfterPoint(digit: sender.value))"
         default:
             break
         }
+        updateColor()
     }
 }
 
@@ -182,16 +149,26 @@ extension ViewController {
 extension ViewController:UITextFieldDelegate {
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        
+        guard let checkedText = fromTextFieldTooFloat(text: textField),checkedText <= 1
+        else {  sendAlert(alertTitle: "Wrong",
+                          alertMessage: "Change Value");
+                          textField.text = "";
+                          return false }
+        
         switch textField {
         case redValueTextField:
-            forAll(textFromTextField: textField, slider: redSliderOutlet, label: redValueOutlet)
+            redSliderOutlet.value = checkedText
         case greenValueTextOutlet:
-            forAll(textFromTextField: textField, slider: greenSliderOutlet, label: greenValueOutlet)
+            greenSliderOutlet.value = checkedText
         case blueValueTextOutlet:
-            forAll(textFromTextField: textField, slider: blueSliderOutlet, label: blueValueOutlet)
+            blueSliderOutlet.value = checkedText
         default:
             break
         }
+        
+        sendValueFromSlidersTooOutlets()
+        updateColor()
         return true
     }
      
@@ -199,4 +176,27 @@ extension ViewController:UITextFieldDelegate {
         textField.resignFirstResponder()
         return true
     }
+}
+extension ViewController {
+    private func addDoneButtonOnUpKeyboard(textField:UITextField) {
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0,  width: self.view.frame.size.width, height: 30))
+        
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
+                                        target: nil,
+                                        action: nil)
+        
+        let doneBtn  = UIBarButtonItem(title: "Done",
+                                       style: .done,
+                                       target: self, action:#selector(hendleTap))
+        
+        toolbar.setItems([flexSpace, doneBtn], animated: false)
+        textField.inputAccessoryView = toolbar
+        toolbar.sizeToFit()
+        
+
+    }
+    @objc func hendleTap() {
+        view.endEditing(true)
+    }
+
 }
